@@ -10,7 +10,15 @@ connectDB();
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+
+const corsOptions = {
+  origin: process.env.NODE_ENV === "PROD" ? process.env.PROD : process.env.DEV,
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
 
 app.get("/", (req, res) => {
   res.send("API Running!");
@@ -22,7 +30,7 @@ app.use("/api/user", userRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3001;
 
 const server = app.listen(
   PORT,
@@ -32,7 +40,7 @@ const server = app.listen(
 const io = require("socket.io")(server, {
   pingTimeout: 60000,
   cors: {
-    origin: "*",
+    origin: process.env.NODE_ENV === "PROD" ? process.env.PROD : process.env.DEV,
     credentials: true,
   },
   allowEIO3: true,
